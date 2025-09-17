@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Donate Your Feelings — Nunca de la Luna</title>
+  <meta name="description" content="A quiet room for your sadness and grief. Donate your feelings to Nunca de la Luna." />
+  <style>
+    :root {
+      --bg: #000;
+      --fg: #eaeaea;
+      --muted: #9a9a9a;
+      --accent: #ffffff;
+      --focus: #cfcfcf;
+      --border: #2a2a2a;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    .screen {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+    .stack { display: grid; gap: 24px; place-items: center; }
+    .gif-wrap {
+      position: relative;
+      width: min(60vmin, 360px);
+      height: min(60vmin, 360px);
+      display: grid; place-items: center;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,.6);
+      background: #050505;
+    }
+    .gif-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .cta-square {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.5);
+      border: 1px solid var(--border);
+      padding: 20px 24px;
+      border-radius: 12px;
+      cursor: pointer;
+      text-transform: lowercase;
+      letter-spacing: .04em;
+      user-select: none;
+      transition: transform .15s ease, background .2s ease, border-color .2s ease;
+      color: var(--accent);
+    }
+    .cta-square:hover { transform: translate(-50%, -50%) scale(1.02); border-color: #3a3a3a; }
+    .cta-square:active { transform: translate(-50%, -50%) scale(0.98); }
+
+    .fade-out { animation: fadeOut .6s ease forwards; }
+    @keyframes fadeOut { to { opacity: 0; transform: scale(.985); filter: blur(2px); } }
+
+    .panel {
+      width: min(760px, 92vw);
+      margin: auto;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      background: rgba(10,10,10,.75);
+      box-shadow: 0 10px 50px rgba(0,0,0,.65);
+      backdrop-filter: blur(6px);
+    }
+    .panel h1 { font-size: clamp(18px, 3.2vw, 28px); margin: 0 0 6px; font-weight: 600; }
+    .panel p.lead { margin: 0 0 18px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+
+    form { display: grid; gap: 14px; }
+    label { font-size: 12px; color: var(--muted); letter-spacing: .02em; }
+    input[type="text"], textarea, select {
+      width: 100%;
+      background: #0b0b0b;
+      color: var(--fg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 12px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    textarea { min-height: 180px; resize: vertical; }
+    input:focus, textarea:focus, select:focus { border-color: #3a3a3a; box-shadow: 0 0 0 3px rgba(255,255,255,.04); }
+
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
+
+    .hint { font-size: 12px; color: var(--muted); }
+    .count { font-variant-numeric: tabular-nums; }
+
+    .actions { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+    .btn {
+      appearance: none; border: 1px solid var(--border); background: #111; color: var(--fg);
+      padding: 10px 14px; border-radius: 10px; cursor: pointer; font-size: 14px;
+      transition: transform .12s ease, border-color .2s ease, background .2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); border-color: #3a3a3a; }
+    .btn:active { transform: translateY(0); }
+    .btn.primary { background: #151515; border-color: #3a3a3a; }
+
+    .opt { display: flex; gap: 10px; align-items: flex-start; margin-top: 6px; }
+    .checkbox { display: inline-flex; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); }
+
+    .success, .error { margin-top: 12px; font-size: 14px; }
+    .success { color: #9be29b; }
+    .error { color: #ff9a9a; }
+
+    .hide { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="screen" id="landing">
+    <div class="stack">
+      <div class="gif-wrap" aria-hidden="true">
+        <img src="void.gif" alt="softly shifting void"/>
+        <button id="cta" class="cta-square" aria-controls="panel" aria-expanded="false">donate your feelings</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen hide" id="panel">
+    <div class="panel" role="dialog" aria-modal="true" aria-labelledby="title">
+      <h1 id="title">Donate your feelings</h1>
+      <p class="lead">This is a quiet inbox for sadness, grief, or anything you need to let go of. Write freely. I will read it in silence.<br>Quietly, Nunca de la Luna.</p>
+
+      <form id="feelForm" autocomplete="on">
+        <input type="text" name="website" tabindex="-1" class="hide" aria-hidden="true" />
+
+        <div class="row">
+          <div>
+            <label for="mood">primary feeling (optional)</label>
+            <select id="mood" name="mood">
+              <option value="">choose if you want</option>
+              <option>sadness</option>
+              <option>grief</option>
+              <option>loneliness</option>
+              <option>anger</option>
+              <option>shame</option>
+              <option>fear</option>
+              <option>numb</option>
+            </select>
+          </div>
+          <div>
+            <label for="subject">title (optional)</label>
+            <input id="subject" name="subject" type="text" placeholder="e.g., the night eats the room" maxlength="120" />
+          </div>
+        </div>
+
+        <div>
+          <label for="message">your message</label>
+          <textarea id="message" name="message" placeholder="Let it spill here…" required maxlength="4000"></textarea>
+          <div class="hint"><span class="count" id="counter">0</span>/4000</div>
+        </div>
+
+        <div class="opt">
+          <label class="checkbox"><input type="checkbox" id="consent" name="consent" /> I agree to send this message</label>
+        </div>
+
+        <div class="actions">
+          <div style="display:flex; gap:10px; align-items:center;">
+            <button type="submit" class="btn primary" id="sendBtn">send</button>
+            <button type="button" class="btn" id="saveBtn" title="Save locally to this device">save draft</button>
+            <button type="button" class="btn" id="clearBtn" title="Clear the form">clear</button>
+          </div>
+          <button type="button" class="btn" id="backBtn" aria-label="back to landing">back</button>
+        </div>
+
+        <div class="success hide" id="ok">thank you. your feelings have been received.</div>
+        <div class="error hide" id="err">sorry, something went wrong. please try again later.</div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const FORMSPREE_ENDPOINT = "";
+    const FALLBACK_EMAIL = "Nunca@mail.com";
+
+    const landing = document.getElementById('landing');
+    const panel = document.getElementById('panel');
+    const cta = document.getElementById('cta');
+    const form = document.getElementById('feelForm');
+    const counter = document.getElementById('counter');
+    const ok = document.getElementById('ok');
+    const err = document.getElementById('err');
+    const saveBtn = document.getElementById('saveBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const backBtn = document.getElementById('backBtn');
+
+    const DRAFT_KEY = 'nunca_feelings_draft_v1';
+
+    function openPanel() {
+      landing.classList.add('fade-out');
+      setTimeout(() => {
+        landing.classList.add('hide');
+        panel.classList.remove('hide');
+        cta.setAttribute('aria-expanded', 'true');
+        try {
+          const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
+          if (draft) {
+            for (const [k,v] of Object.entries(draft)) {
+              const el = form.querySelector(`[name="${k}"]`);
+              if (el) el.value = v;
+            }
+            updateCount();
+          }
+        } catch (e) {}
+      }, 500);
+    }
+
+    function backToLanding() {
+      panel.classList.add('hide');
+      landing.classList.remove('hide');
+      landing.classList.remove('fade-out');
+      cta.setAttribute('aria-expanded', 'false');
+    }
+
+    cta.addEventListener('click', openPanel);
+    backBtn.addEventListener('click', backToLanding);
+
+    const message = document.getElementById('message');
+    function updateCount(){ counter.textContent = (message.value || '').length; }
+    message.addEventListener('input', updateCount);
+    updateCount();
+
+    saveBtn.addEventListener('click', () => {
+      const data = Object.fromEntries(new FormData(form).entries());
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+      ok.textContent = 'draft saved on this device.';
+      ok.classList.remove('hide');
+      setTimeout(()=> ok.classList.add('hide'), 1800);
+    });
+
+    clearBtn.addEventListener('click', () => {
+      form.reset();
+      updateCount();
+      localStorage.removeItem(DRAFT_KEY);
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      ok.classList.add('hide');
+      err.classList.add('hide');
+
+      const consent = form.querySelector('#consent');
+      if (consent && !consent.checked) {
+        err.textContent = 'please confirm consent to send.';
+        err.classList.remove('hide');
+        return;
+      }
+
+      const formData = new FormData(form);
+      if (FORMSPREE_ENDPOINT) {
+        try {
+          const resp = await fetch(FORMSPREE_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' },
+            body: formData
+          });
+          if (resp.ok) {
+            form.reset();
+            localStorage.removeItem(DRAFT_KEY);
+            updateCount();
+            ok.textContent = 'thank you. your feelings have been received.';
+            ok.classList.remove('hide');
+          } else {
+            throw new Error('network');
+          }
+        } catch (e) {
+          err.textContent = 'sorry, something went wrong. please try again later.';
+          err.classList.remove('hide');
+        }
+      } else {
+        const subject = encodeURIComponent((formData.get('subject') || 'Feeling Donation') + (formData.get('mood') ? ` - ${formData.get('mood')}` : ''));
+        const bodyParts = [];
+        if (formData.get('mood')) bodyParts.push(`mood: ${formData.get('mood')}`);
+        bodyParts.push('');
+        bodyParts.push(formData.get('message') || '');
+        const body = encodeURIComponent(bodyParts.join('\n'));
+        const mailto = `mailto:${FALLBACK_EMAIL}?subject=${subject}&body=${body}`;
+        window.location.href = mailto;
+      }
+    });
+  </script>
+</body>
+</html>
